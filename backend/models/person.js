@@ -26,6 +26,10 @@ const personSchema = new mongoose.Schema(
             type: Boolean,
             default: true
         },
+        isEngaged: {
+            type: Boolean,
+            default: false
+        },
         createdAt: {
             type: String,
             default: Date.now()

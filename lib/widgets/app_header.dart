@@ -3,13 +3,15 @@ import 'package:gap/gap.dart';
 import 'package:live_message/data/model/person.dart';
 
 class AppHeader extends StatelessWidget {
-  const AppHeader({super.key, required this.person, required this.onTapProfile});
+  const AppHeader(
+      {super.key, required this.person, required this.onTapProfile});
 
   final Person person;
   final VoidCallback onTapProfile;
 
   @override
   Widget build(BuildContext context) {
+    print("name : " + person.name.toString());
     return GestureDetector(
       onTap: onTapProfile,
       child: Card(
@@ -29,15 +31,17 @@ class AppHeader extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(person.name!),
+                  Text(person.name ?? ""),
                   const Gap(8.0),
-                  Text(person.socketID!),
+                  Text(person.socketID ?? ""),
                 ],
               ),
               const Spacer(),
               Icon(
-                  person.isActive! ? Icons.circle_rounded : Icons.circle_outlined,
-                  color: person.isActive! ? Colors.green : Colors.grey)
+                  person.isActive ?? true
+                      ? Icons.circle_rounded
+                      : Icons.circle_outlined,
+                  color: person.isActive ?? true ? Colors.green : Colors.grey)
             ],
           ),
         ),

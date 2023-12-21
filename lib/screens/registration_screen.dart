@@ -92,13 +92,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 const Gap(16.0),
                 CustomButton(
                     onTap: () {
-                      if(_name.text.isNotEmpty && _email.text.isNotEmpty && _password.text.isNotEmpty){
+                      if (_name.text.isNotEmpty &&
+                          _email.text.isNotEmpty &&
+                          _password.text.isNotEmpty) {
                         _socketMethods.registerUser(
                             _name.text, _email.text, _password.text);
-                      }else{
+                      } else {
                         showSnackBar(context, "Please fill out all the fields");
                       }
-
                     },
                     text: "Register")
               ],

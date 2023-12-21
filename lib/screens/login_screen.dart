@@ -28,8 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     _socketMethods.onLoginSuccessListener(context);
     _socketMethods.onErrorOccuredListener(context);
-    _email = TextEditingController(text: "");
-    _password = TextEditingController(text: "");
+    _email = TextEditingController(text: "kausar@gmail.com");
+    _password = TextEditingController(text: "1234");
   }
 
   @override
@@ -85,14 +85,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Gap(16.0),
                 CustomButton(
                     onTap: () {
-                      // if(_email.text.isNotEmpty && _password.text.isNotEmpty){
-                      //       _socketMethods.loginUser(_email.text, _password.text);
-                      // }else{
-                      //   showSnackBar(context, "Please fill out all the fields");
-                      // }
-
-                      Navigator.pushNamed(context, HomeScreen.routeName);
-
+                      if (_email.text.isNotEmpty && _password.text.isNotEmpty) {
+                        _socketMethods.loginUser(_email.text, _password.text);
+                      } else {
+                        showSnackBar(context, "Please fill out all the fields");
+                      }
+                      // _socketMethods.clearDB();
                     },
                     text: "Login")
               ],

@@ -25,20 +25,44 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   console.log("connected!");
 
+  socket.on("onClearDB", async () => {
+    try {
+      const user = await User.deleteMany();
+      console.log(user);
+
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
   socket.on("onLoginUser", async ({ email, password }) => {
     try {
-      const user = await User.findOne({ email: email }).select({__v:0});
-      console.log(user);
-      if (user!=null) {
+      const user = await User.findOne({ email: email }).select({ __v: 0 });
+      // console.log(user);
+      if (user != null) {
         //match password
         const match = password == user.password
         if (!match) {
           socket.emit("errorOccurred", "Password don't match!.");
         } else {
           //login success
-          socket.emit("onLoginSuccess", { user });
+          const currentUser = await User.findById(user._id).select({ password: 0, __v: 0 });
+          if(currentUser!=null){
+            socket.emit("onLoginSuccess", currentUser);
+          }else{
+            socket.emit("errorOccurred", "User not found.");
+          }
+
+          //active user list
+          //login success
+          const activeUser = await User.find({_id: {$ne: currentUser._id}}).select({ password: 0, __v: 0 });
+          // console.log(activeUser);
+
+          if(activeUser!=null){
+            socket.emit("onActiveUserListener", activeUser);
+          }
         }
-       
+
       } else {
         socket.emit("errorOccurred", "User not registered.");
       }

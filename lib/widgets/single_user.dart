@@ -15,22 +15,26 @@ class SingleUser extends StatelessWidget {
       child: Card(
         elevation: 4.0,
         child: Padding(
-          padding: const EdgeInsets.only(left: 16.0, top: 8.0, right: 8.0, bottom: 8.0),
+          padding: const EdgeInsets.only(
+              left: 16.0, top: 8.0, right: 8.0, bottom: 8.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const CircleAvatar(
                 radius: 32,
-                child: Icon(Icons.person,size: 40.0,),
+                child: Icon(
+                  Icons.person,
+                  size: 40.0,
+                ),
               ),
               const Gap(16.0),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    border: Border.all(width: 1.0, color: Colors.blueGrey),
-                    borderRadius: BorderRadius.circular(8.0)
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      border: Border.all(width: 1.0, color: Colors.blueGrey),
+                      borderRadius: BorderRadius.circular(8.0)),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -41,12 +45,19 @@ class SingleUser extends StatelessWidget {
                         children: [
                           Text(person.name!),
                           const Gap(8.0),
-                          Text(person.chatID!),
+                          Text(person.socketID!),
                         ],
                       ),
-                      if(person.isEngaged!)
-                        const Icon(Icons.not_interested, color: Colors.grey,)
-                      else const Icon(Icons.chat_rounded, color: Colors.blueAccent,)
+                      if (person.isEngaged!)
+                        const Icon(
+                          Icons.not_interested,
+                          color: Colors.grey,
+                        )
+                      else
+                        const Icon(
+                          Icons.chat_rounded,
+                          color: Colors.blueAccent,
+                        )
                     ],
                   ),
                 ),

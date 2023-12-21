@@ -16,8 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => RoomDataProvider())],
+    return ChangeNotifierProvider(
+      create: (_) => RoomDataProvider(),
       child: MaterialApp(
         title: 'Live Message',
         theme: ThemeData(

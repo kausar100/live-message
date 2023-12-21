@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:live_message/data/model/person.dart';
+import 'package:live_message/data/provider/room_data_provider.dart';
+import 'package:live_message/data/socket_resources/socket_methods.dart';
 import 'package:live_message/screens/message_screen.dart';
 import 'package:live_message/screens/profile_screen.dart';
 import 'package:live_message/utils/shared.dart';
 import 'package:live_message/widgets/app_header.dart';
 import 'package:live_message/widgets/user_list.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   static String routeName = '/home';
@@ -17,15 +20,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool active = false;
+  final SocketMethods _socketMethods = SocketMethods();
+
+  @override
+  void initState() {
+    super.initState();
+    _socketMethods.onActiveUserListener(context);
+    _socketMethods.onRequestUserListener(context);
+    _socketMethods.onErrorOccuredListener(context);
+  }
 
   @override
   Widget build(BuildContext context) {
+    RoomDataProvider roomDataProvider = Provider.of<RoomDataProvider>(context);
     final userList = List.generate(
         5,
         (index) => Person("Person${index + 1}", "email", "socketID", "chatID",
             active, !active));
-    final me = Person(
-        "Kausar", "gk@gmail.com", "ldfjajsdafkld", "asdfd", active, false);
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -43,9 +55,13 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppHeader(
-                person: me,
+                person: roomDataProvider.currentUser ??
+                    Person("name", "email", "socketID", "chatID", true, false),
                 onTapProfile: () {
-                  Navigator.pushNamed(context, ProfileScreen.routeName, arguments: me);
+                  Navigator.pushNamed(context, ProfileScreen.routeName,
+                      arguments: roomDataProvider.currentUser ??
+                          Person("name", "email", "socketID", "chatID", true,
+                              false));
                 },
               ),
               Expanded(
@@ -69,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 flex: 2,
                 child: UserList(
                   title: "Active User",
-                  activeUsers: userList,
+                  activeUsers: roomDataProvider.userList,
                   onTapUser: (user) {
                     showSnackBar(context, user.name.toString());
                   },
