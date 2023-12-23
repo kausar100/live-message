@@ -39,12 +39,8 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  gotoRegistrationPage(BuildContext context) {
-    Navigator.pushReplacementNamed(context, RegistrationScreen.routeName);
-  }
-
-  gotoHome(BuildContext context) {
-    Navigator.pushReplacementNamed(context, HomeScreen.routeName);
+  gotoRegistrationPage() {
+    Navigator.pushNamed(context, RegistrationScreen.routeName);
   }
 
   @override
@@ -86,7 +82,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 CustomButton(
                     onTap: () {
                       if (_email.text.isNotEmpty && _password.text.isNotEmpty) {
-                        _socketMethods.loginUser(_email.text, _password.text);
+                        _socketMethods.loginUser(
+                            email: _email.text, password: _password.text);
                       } else {
                         showSnackBar(context, "Please fill out all the fields");
                       }
@@ -98,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
             CustomButton(
                 text: "Don't have an Account, Register here",
                 onTap: () {
-                  gotoRegistrationPage(context);
+                  gotoRegistrationPage();
                 },
                 enableBorder: false)
           ],

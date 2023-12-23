@@ -12,7 +12,12 @@ class SocketClient {
             .setTransports(['websocket']) // for Flutter or Dart VM
             .disableAutoConnect() // disable auto-connection
             .build());
+
+    //connect to socket
     socket!.connect();
+
+    socket?.onConnect((_) => print('connect'));
+    socket?.onDisconnect((_) => print('disconnect'));
   }
 
   static SocketClient get instance {

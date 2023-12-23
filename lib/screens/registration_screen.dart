@@ -40,8 +40,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  gotoLoginPage(BuildContext context) {
-    Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+  gotoLoginPage() {
+    Navigator.pushNamed(context, LoginScreen.routeName);
   }
 
   @override
@@ -96,7 +96,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           _email.text.isNotEmpty &&
                           _password.text.isNotEmpty) {
                         _socketMethods.registerUser(
-                            _name.text, _email.text, _password.text);
+                            name: _name.text,
+                            email: _email.text,
+                            password: _password.text);
                       } else {
                         showSnackBar(context, "Please fill out all the fields");
                       }
@@ -107,7 +109,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             CustomButton(
                 text: "Already a register user, Sign in",
                 onTap: () {
-                  gotoLoginPage(context);
+                  gotoLoginPage();
                 },
                 enableBorder: false)
           ],

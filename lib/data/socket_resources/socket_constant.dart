@@ -4,12 +4,8 @@ class IOConstant {
   static const loginEmitter = 'onLoginUser';
   static const registerEmitter = 'onRegisterUser';
 
-  //active user and request user
-  static const onUserRequestListener = 'onUserRequestListener';
-  static const onActiveUserListener = 'onActiveUserListener';
-
-  //error
-  static const errorOccurredListener = 'errorOccurred';
+  //active user
+  static const onFetchActiveUserEmitter = 'onFetchActiveUser';
 
   //request sent and accept
   static const requestSentEmitter = 'onRequestSent';
@@ -17,6 +13,7 @@ class IOConstant {
 
   //message sent
   static const messageSentEmitter = 'onMessageSent';
+  static const joinRoomEmitter = 'onJoinRoom';
 
   //LISTENER
   //auth
@@ -27,7 +24,15 @@ class IOConstant {
   static const messageSentSuccessListener = 'onMessageSentSuccess';
   static const messageReceiveSuccessListener = 'onMessageReceiveSuccess';
 
+  //active user and request user
+  static const onUserRequestListener = 'onUserRequestListener';
+  static const onActiveUserListener = 'onActiveUserListener';
+
   //request sent and accept
   static const requestSentSuccessListener = 'onRequestSentSuccess';
   static const requestAcceptSuccessListener = 'onRequestAcceptSuccess';
+
+  //error
+  static const errorOccurredListener = 'errorOccurred';
+  static const userBusyListener = "userBusy";
 }

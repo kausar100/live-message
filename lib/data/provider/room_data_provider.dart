@@ -2,29 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:live_message/data/model/person.dart';
 
 class RoomDataProvider extends ChangeNotifier {
-  Map<String, dynamic> _roomData = {};
-
   Person? _user;
-  List<Person> _userList = [];
-
-  Map<String, dynamic> get roomData => _roomData;
+  Person? _requestUser;
+  List<Person> _activeUserList = [];
+  List<Person> _requestUserList = [];
 
   Person? get currentUser => _user;
-  List<Person> get userList => _userList;
+  Person? get requestUser => _requestUser;
 
-  void updateRoomData(Map<String, dynamic> data) {
-    _roomData = data;
-    notifyListeners();
-  }
+  List<Person> get userList => _activeUserList;
+  List<Person> get requestedUserList => _requestUserList;
 
   void updateUser(Person info) {
     _user = info;
     notifyListeners();
   }
 
+  void saveRequestUser(Person info) {
+    //remove request user from active list
+    _activeUserList = userList.where((p)=>p.id! != info.id!).toList();
+
+    //save user
+    _requestUser = info;
+    notifyListeners();
+  }
+
   void updateActiveUser(List<Person> data) {
-    _userList = data;
+    _activeUserList = data;
     print(userList.length.toString());
+    notifyListeners();
+  }
+
+  void updateRequestedUser(List<Person> data) {
+    _requestUserList = data;
+    print(requestedUserList.length.toString());
+    notifyListeners();
+  }
+
+  void updatedEngagedStatus() {
+    var now = currentUser;
+    now!.isEngaged = true;
+
+    _user = now;
     notifyListeners();
   }
 }
