@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:live_message/data/socket_resources/socket_methods.dart';
-import 'package:live_message/screens/home_screen.dart';
 import 'package:live_message/screens/registration_screen.dart';
 import 'package:live_message/utils/shared.dart';
 import 'package:live_message/widgets/app_text_button.dart';

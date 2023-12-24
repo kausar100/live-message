@@ -45,7 +45,7 @@ class SingleUser extends StatelessWidget {
                         children: [
                           Text(person.name!),
                           const Gap(8.0),
-                          Text(person.socketID!),
+                          Text(person.email!, overflow: TextOverflow.clip),
                         ],
                       ),
                       if (person.isEngaged!)

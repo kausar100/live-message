@@ -7,7 +7,8 @@ class SocketClient {
 
   SocketClient._init() {
     socket = io(
-        'http://your ip address:3000',
+        // 'http://your ip address:3000',
+        'http://192.168.100.133:3000',
         OptionBuilder()
             .setTransports(['websocket']) // for Flutter or Dart VM
             .disableAutoConnect() // disable auto-connection

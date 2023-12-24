@@ -36,6 +36,15 @@ class SocketMethods {
         .emit(IOConstant.loginEmitter, {'email': email, 'password': password});
   }
 
+  void logoutUser({required String id}) {
+    _socketClient
+        .emit(IOConstant.logoutEmitter, id);
+  }
+
+  void updateEngagedStatus({required String id}) {
+    _socketClient.emit(IOConstant.onUpdateEngagedStatusEmitter, id);
+  }
+
   void requestSent(
       {required BuildContext context,
       required String senderId,
@@ -85,8 +94,20 @@ class SocketMethods {
       //subscribe to own room for messages
       _subscribeToRoom(user.id!);
 
+      //fetch active user
+      fetchActiveUser(user.id!);
+
       //go to home page
       Navigator.pushNamed(context, HomeScreen.routeName);
+    });
+  }
+
+  void onUpdateEngagedSuccessListener(BuildContext context) {
+    _socketClient.on(IOConstant.onUpdateEngagedStatusSuccessListener, (data) {
+      print("onUpdateEngagedStatusSuccessListener $data");
+      //save data
+      final user = Person.fromJson(data);
+      Provider.of<RoomDataProvider>(context, listen: false).updateUser(user);
     });
   }
 
@@ -99,6 +120,7 @@ class SocketMethods {
           Provider.of<RoomDataProvider>(context, listen: false).currentUser!;
 
       info.chatID = data['chatID'];
+
       Provider.of<RoomDataProvider>(context, listen: false).updateUser(info);
 
       final senderInfo = data['sender'];
@@ -106,27 +128,50 @@ class SocketMethods {
       final sender = Person.fromJson(senderInfo);
       users.add(sender);
 
-      showWaitingDialog(context,"${sender.name} is waiting for your confirmation!", (ctx) {
-        Provider.of<RoomDataProvider>(context, listen: false)
-            .updateRequestedUser(users);
-        //accept request
-        requestAccept(senderId: sender.id!, receiverId: info.id!, chatId: info.chatID!);
+      showWaitingDialog(
+          context: context,
+          text: "${sender.name} is waiting for your confirmation!",
+          onCancel: (ctx) {
+            Provider.of<RoomDataProvider>(context, listen: false)
+                .updateRequestedUser(users);
 
-        //update status
-        Provider.of<RoomDataProvider>(context, listen: false)
-            .updatedEngagedStatus();
+            //dismiss dialog
+            Navigator.of(ctx).pop();
+          },
+          onConfirm: (ctx) {
+            Provider.of<RoomDataProvider>(context, listen: false)
+                .updateRequestedUser(users);
 
-        //dismiss dialog
-        Navigator.of(ctx).pop();
+            //accept request
+            requestAccept(
+                senderId: sender.id!,
+                receiverId: info.id!,
+                chatId: info.chatID!);
 
-        //go to message screen
-        Navigator.pushNamed(context, MessageScreen.routeName, arguments: sender);
-      });
+            //dismiss dialog
+            Navigator.of(ctx).pop();
+
+            //update engaged status
+            updateEngagedStatus(id: info.id!);
+
+            //go to message screen
+            Navigator.pushNamed(context, MessageScreen.routeName,
+                arguments: sender);
+          });
     });
   }
 
   void disconnectSocket() {
     SocketClient.instance.socket?.disconnect();
+  }
+
+  void onLogoutSuccessListener(BuildContext context){
+    _socketClient.on(IOConstant.logoutSuccessListener, (data) {
+      print("onLogoutSuccessListener $data");
+      //save data
+      final me = Provider.of<RoomDataProvider>(context, listen: false).currentUser!;
+      fetchActiveUser(me.id!);
+    });
   }
 
   void onActiveUserListener(BuildContext context) {
@@ -136,6 +181,45 @@ class SocketMethods {
       final activeUsers = Person.jsonToPersonList(data);
       Provider.of<RoomDataProvider>(context, listen: false)
           .updateActiveUser(activeUsers);
+    });
+  }
+
+  void onNewLoginUserListener(BuildContext context) {
+    _socketClient.on(IOConstant.onNewUserLoginListener, (data) {
+      print("onNewLoginUserListener $data");
+
+      //new user login
+      final newUser = Person.fromJson(data);
+
+      final me =
+          Provider.of<RoomDataProvider>(context, listen: false).currentUser!;
+
+      //not me
+      if (newUser.email != me.email) {
+        //fetch current active user
+        final activeUsers =
+            Provider.of<RoomDataProvider>(context, listen: false).userList;
+
+        final alreadyExist = activeUsers.where((element) => element.email == newUser.email).toList();
+
+        if (alreadyExist.isNotEmpty) {
+          //remove the newuser
+          final newList = activeUsers.where((p) => p.email != newUser.email).toList();
+
+          //add with new info
+          newList.add(newUser);
+          Provider.of<RoomDataProvider>(context, listen: false)
+              .updateActiveUser(activeUsers);
+
+        } else {
+          activeUsers.add(newUser);
+          //update active users with new user
+          Provider.of<RoomDataProvider>(context, listen: false)
+              .updateActiveUser(activeUsers);
+        }
+      } else {
+        print('update not needed');
+      }
     });
   }
 
@@ -151,23 +235,24 @@ class SocketMethods {
 
       Provider.of<RoomDataProvider>(context, listen: false).updateUser(info);
 
-      showProgressDialog(context,"Waiting for accepting request...");
-
+      showProgressDialog(context, "Waiting for accepting request...");
     });
   }
 
   void onRequestAcceptSuccessListener(BuildContext context) {
-    _socketClient.on(IOConstant.requestAcceptSuccessListener, (msg) {
-      print("onRequestAcceptSuccessListener $msg");
+    _socketClient.on(IOConstant.requestAcceptSuccessListener, (data) {
+      print("onRequestAcceptSuccessListener $data");
+
+      final me =
+          Provider.of<RoomDataProvider>(context, listen: false).currentUser!;
+
       //update status
-      Provider.of<RoomDataProvider>(context, listen: false)
-          .updatedEngagedStatus();
+      updateEngagedStatus(id: me.id!);
 
       //dismiss waiting view, show message screen
-      final receiver =
-          Provider.of<RoomDataProvider>(context, listen: false).requestUser;
+      final receiver = Person.fromJson(data);
       Navigator.pushNamed(context, MessageScreen.routeName,
-                arguments: receiver);
+          arguments: receiver);
     });
   }
 

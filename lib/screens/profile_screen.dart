@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:live_message/data/model/person.dart';
+import 'package:live_message/data/socket_resources/socket_methods.dart';
 import 'package:live_message/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -13,6 +14,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final SocketMethods _socketMethods = SocketMethods();
+
+  @override
+  void initState() {
+    super.initState();
+    _socketMethods.onErrorOccuredListener(context);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final user = ModalRoute.of(context)!.settings.arguments as Person;
@@ -47,6 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         IconButton(
                             onPressed: () {
                               //log out
+                              _socketMethods.logoutUser(id: user.id!);
                               Navigator.popUntil(context, ModalRoute.withName(LoginScreen.routeName));
                             }, icon: const Icon(Icons.logout))
                       ],

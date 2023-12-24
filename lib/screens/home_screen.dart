@@ -22,19 +22,20 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _socketMethods
-        .fetchActiveUser(context.read<RoomDataProvider>().currentUser!.id!);
     _socketMethods.onActiveUserListener(context);
     _socketMethods.onRequestUserListener(context);
     _socketMethods.onErrorOccuredListener(context);
     _socketMethods.onUserBusyListener(context);
     _socketMethods.onRequestSentSuccessListener(context);
     _socketMethods.onRequestAcceptSuccessListener(context);
+    _socketMethods.onNewLoginUserListener(context);
+    _socketMethods.onUpdateEngagedSuccessListener(context);
+    _socketMethods.onLogoutSuccessListener(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    RoomDataProvider roomDataProvider = Provider.of<RoomDataProvider>(context);
+    RoomDataProvider roomDataProvider = Provider.of<RoomDataProvider>(context, listen: true);
 
     final user = roomDataProvider.currentUser!;
     return DefaultTabController(
@@ -94,10 +95,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTapUser: (sender) {
                   //goto message screen if user is not engaged
                   _socketMethods.requestAccept(
-                      senderId: user.id!,
-                      receiverId: sender.id!,
+                      senderId: sender.id!,
+                      receiverId: user.id!,
                       chatId: user.chatID!);
 
+                  //change engaged status
+                  _socketMethods.updateEngagedStatus(id: user.id!);
+
+                  // goto next screen
                   Navigator.pushNamed(context, MessageScreen.routeName,
                       arguments: sender);
                 },

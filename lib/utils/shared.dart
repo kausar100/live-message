@@ -11,13 +11,19 @@ void showSnackBar(BuildContext context, String content) {
 }
 
 void showWaitingDialog(
-    BuildContext context, String text, Function(BuildContext context) onConfirm) {
+    {required BuildContext context,
+    required String text,
+    required Function(BuildContext context) onCancel,
+    required Function(BuildContext context) onConfirm}) {
   showDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) {
         return AlertDialog(
-          icon: const Icon(Icons.cloud_queue, size: 40.0,),
+          icon: const Icon(
+            Icons.cloud_queue,
+            size: 40.0,
+          ),
           iconColor: Colors.blueGrey,
           title: Text(
             text,
@@ -26,7 +32,7 @@ void showWaitingDialog(
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                onCancel(context);
               },
               child: const Text(
                 'Cancel',
@@ -51,7 +57,10 @@ void showProgressDialog(BuildContext context, String text) {
       context: context,
       builder: (context) {
         return AlertDialog(
-          icon: const Icon(Icons.cloud_queue, size: 40.0,),
+          icon: const Icon(
+            Icons.cloud_queue,
+            size: 40.0,
+          ),
           iconColor: Colors.blueGrey,
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.center,

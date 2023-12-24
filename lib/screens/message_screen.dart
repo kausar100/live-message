@@ -28,6 +28,7 @@ class _MessageScreenState extends State<MessageScreen> {
     _message = TextEditingController();
     _socketMethods.onUserBusyListener(context);
     _socketMethods.onErrorOccuredListener(context);
+    // _socketMethods.onUpdateEngagedSuccessListener(context);
   }
 
   @override
@@ -40,11 +41,7 @@ class _MessageScreenState extends State<MessageScreen> {
   Widget build(BuildContext context) {
     final receiver = ModalRoute.of(context)!.settings.arguments as Person;
 
-    RoomDataProvider roomDataProvider = Provider.of<RoomDataProvider>(context);
-
-    final me = roomDataProvider.currentUser!;
-
-    final screen = MediaQuery.of(context).size;
+    RoomDataProvider roomDataProvider = Provider.of<RoomDataProvider>(context, listen: true);
 
     return Scaffold(
         body: Center(
@@ -52,7 +49,7 @@ class _MessageScreenState extends State<MessageScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (me.isEngaged == true)
+            if (roomDataProvider.currentUser!.isEngaged == true)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -65,13 +62,13 @@ class _MessageScreenState extends State<MessageScreen> {
                         },
                         onExitFromRoom: () {
                           //TODO need to leave room
-                          roomDataProvider.updatedEngagedStatus();
+                          _socketMethods.updateEngagedStatus(id: roomDataProvider.currentUser!.id!);
                           Navigator.pop(context);
                         }),
                     Expanded(
                       child: Card(
                         child: ListView.builder(
-                          itemCount: 20,
+                          itemCount: 5,
                           itemBuilder: (context, index) => Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text("this is message number $index"),
