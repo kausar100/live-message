@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   _socketMethods.requestAccept(
                       senderId: sender.id!,
                       receiverId: user.id!,
-                      chatId: user.chatID!);
+                      chatId: roomDataProvider.chatID!);
 
                   //change engaged status
                   _socketMethods.updateEngagedStatus(id: user.id!);

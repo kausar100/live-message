@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:live_message/data/model/person.dart';
+import 'package:live_message/data/provider/room_data_provider.dart';
 import 'package:live_message/data/socket_resources/socket_methods.dart';
 import 'package:live_message/screens/login_screen.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   static const routeName = "/profile";
@@ -22,10 +24,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _socketMethods.onErrorOccuredListener(context);
   }
 
-
   @override
   Widget build(BuildContext context) {
     final user = ModalRoute.of(context)!.settings.arguments as Person;
+    final me = Provider.of<RoomDataProvider>(context).currentUser!;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -54,6 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold),
                         ),
+                        if(me.id! == user.id!)
                         IconButton(
                             onPressed: () {
                               //log out

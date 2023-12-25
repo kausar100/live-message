@@ -14,7 +14,7 @@ class IOConstant {
   static const requestAcceptEmitter = 'onRequestAccept';
 
   //message sent
-  static const messageSentEmitter = 'onMessageSent';
+  static const messageSentEmitter = 'onSendMessage';
   static const joinRoomEmitter = 'onJoinRoom';
 
   //LISTENER

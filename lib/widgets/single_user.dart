@@ -48,15 +48,15 @@ class SingleUser extends StatelessWidget {
                           Text(person.email!, overflow: TextOverflow.clip),
                         ],
                       ),
-                      if (person.isEngaged!)
-                        const Icon(
-                          Icons.not_interested,
-                          color: Colors.grey,
-                        )
-                      else
+                      if (person.isActive!)
                         const Icon(
                           Icons.chat_rounded,
                           color: Colors.blueAccent,
+                        )
+                      else
+                        const Icon(
+                          Icons.not_interested,
+                          color: Colors.grey,
                         )
                     ],
                   ),

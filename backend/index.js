@@ -2,6 +2,7 @@
 require('dotenv').config();
 const express = require("express");
 const http = require("http");
+const mongoose = require("mongoose");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,6 +10,8 @@ const server = http.createServer(app);
 
 const User = require('./models/person');
 const Room = require('./models/channel');
+const messageSchema = require("./models/message");
+const Message =  mongoose.model("message", messageSchema);
 
 var io = require("socket.io")(server);
 
@@ -116,7 +119,7 @@ io.on('connection', (socket) => {
             console.log("onlogoutUserNew "+currentUser);
             if (currentUser != null) {
               socket.leave(id);
-              io.emit("onLogoutSuccess", "Logout success!");
+              io.emit("onLogoutSuccess", currentUser);
             } else {
               socket.emit("errorOccurred", "User not found.");
             }
@@ -235,31 +238,27 @@ io.on('connection', (socket) => {
         }else{
           socket.emit("userBusy", "User is not available!");
         }
-  
-  
+
       }catch(e){
         console.log(e);
       }
     });
 
-  //Leave the room if the user closes the socket
-  // socket.on('disconnect', () => {
-  //     socket.leave(chatID)
-  // });
+      //Send message to only a particular user
+      socket.on("onSendMessage", ({chatId, senderId, receiverId, message}) => {
 
-  //Send message to only a particular user
-  socket.on('send_message', message => {
-      receiverChatID = message.receiverChatID
-      senderChatID = message.senderChatID
-      content = message.content
+          const content = Message(
+          {  text: message,
+             senderID : senderId,
+          });
 
-      //Send message to only that particular room
-      socket.in(receiverChatID).emit('receive_message', {
-          'content': content,
-          'senderChatID': senderChatID,
-          'receiverChatID':receiverChatID,
+          console.log("message content "+ content);
+
+          io.to(senderId).emit("onMessageSentSuccess", content);
+
+          io.to(receiverId).emit("onMessageReceiveSuccess", content);
+
       });
-  });
 });
 
 

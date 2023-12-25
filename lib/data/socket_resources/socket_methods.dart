@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:live_message/data/model/message.dart';
 import 'package:live_message/data/model/person.dart';
 import 'package:live_message/data/provider/room_data_provider.dart';
 import 'package:live_message/data/socket_resources/socket_constant.dart';
@@ -49,6 +50,7 @@ class SocketMethods {
       {required BuildContext context,
       required String senderId,
       required Person receiver}) {
+
     _socketClient.emit(IOConstant.requestSentEmitter,
         {"senderId": senderId, "receiverId": receiver.id});
 
@@ -65,9 +67,8 @@ class SocketMethods {
         {"senderId": senderId, "receiverId": receiverId, "chatId": chatId});
   }
 
-  void messageSent(String text) {
-    _socketClient.emit(IOConstant.messageSentEmitter,
-        {"senderSocketID": _socketClient.id, "message": text});
+  void messageSent({required String chatId, required Message message}) {
+    _socketClient.emit(IOConstant.messageSentEmitter, {"chatId":chatId, "senderId": message.senderID, "receiverId": message.receiver, "message": message.text});
   }
 
   void _subscribeToRoom(String roomId) {
@@ -115,13 +116,10 @@ class SocketMethods {
     _socketClient.on(IOConstant.onUserRequestListener, (data) {
       print("onRequestUserListener $data");
 
-      //save data
-      final info =
-          Provider.of<RoomDataProvider>(context, listen: false).currentUser!;
+      final provider = Provider.of<RoomDataProvider>(context, listen: false);
 
-      info.chatID = data['chatID'];
-
-      Provider.of<RoomDataProvider>(context, listen: false).updateUser(info);
+      //set chat id
+      provider.setChatId = data['chatID'];
 
       final senderInfo = data['sender'];
       List<Person> users = [];
@@ -131,28 +129,24 @@ class SocketMethods {
       showWaitingDialog(
           context: context,
           text: "${sender.name} is waiting for your confirmation!",
-          onCancel: (ctx) {
+          onCancel: () {
             Provider.of<RoomDataProvider>(context, listen: false)
                 .updateRequestedUser(users);
 
-            //dismiss dialog
-            Navigator.of(ctx).pop();
           },
-          onConfirm: (ctx) {
+          onConfirm: () {
             Provider.of<RoomDataProvider>(context, listen: false)
                 .updateRequestedUser(users);
 
             //accept request
             requestAccept(
                 senderId: sender.id!,
-                receiverId: info.id!,
-                chatId: info.chatID!);
+                receiverId: provider.currentUser!.id!,
+                chatId: provider.chatID!);
 
-            //dismiss dialog
-            Navigator.of(ctx).pop();
 
             //update engaged status
-            updateEngagedStatus(id: info.id!);
+            updateEngagedStatus(id:  provider.currentUser!.id!);
 
             //go to message screen
             Navigator.pushNamed(context, MessageScreen.routeName,
@@ -168,9 +162,22 @@ class SocketMethods {
   void onLogoutSuccessListener(BuildContext context){
     _socketClient.on(IOConstant.logoutSuccessListener, (data) {
       print("onLogoutSuccessListener $data");
-      //save data
+
+      //remove from request list
+      final logoutPerson = Person.fromJson(data);
+      final requestedPersonList = Provider.of<RoomDataProvider>(context, listen: false).requestedUserList;
+
+      final alreadyExist = requestedPersonList.where((element) => element.email == logoutPerson.email).toList();
+
+      if(requestedPersonList.isNotEmpty && alreadyExist.isNotEmpty){
+        final newList = requestedPersonList.where((p) => p.email != logoutPerson.email).toList();
+        Provider.of<RoomDataProvider>(context, listen: false)
+            .updateRequestedUser(newList);
+      }
       final me = Provider.of<RoomDataProvider>(context, listen: false).currentUser!;
+      //fetch active list
       fetchActiveUser(me.id!);
+
     });
   }
 
@@ -225,15 +232,11 @@ class SocketMethods {
 
   //SENT REQUEST AND UPDATE OWN INFO WITH CHAT ID
   void onRequestSentSuccessListener(BuildContext context) {
-    _socketClient.on(IOConstant.requestSentSuccessListener, (data) {
-      print("onRequestSentSuccessListener $data");
+    _socketClient.on(IOConstant.requestSentSuccessListener, (chatID) {
+      print("onRequestSentSuccessListener $chatID");
 
       //save data
-      final info =
-          Provider.of<RoomDataProvider>(context, listen: false).currentUser!;
-      info.chatID = data;
-
-      Provider.of<RoomDataProvider>(context, listen: false).updateUser(info);
+      Provider.of<RoomDataProvider>(context, listen: false).setChatId = chatID;
 
       showProgressDialog(context, "Waiting for accepting request...");
     });
@@ -259,12 +262,19 @@ class SocketMethods {
   void onMessageSentSuccessListener(BuildContext context) {
     _socketClient.on(IOConstant.messageSentSuccessListener, (data) {
       print("onMessageSentSuccessListener $data");
+
+      final msg = Message.fromJson(data);
+      Provider.of<RoomDataProvider>(context, listen: false).addNewMessage(msg);
+
     });
   }
 
   void onMessageReceiveSuccessListener(BuildContext context) {
     _socketClient.on(IOConstant.messageReceiveSuccessListener, (data) {
       print("onMessageReceiveSuccessListener $data");
+
+      final msg = Message.fromJson(data);
+      Provider.of<RoomDataProvider>(context, listen: false).addNewMessage(msg);
     });
   }
 
