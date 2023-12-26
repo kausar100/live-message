@@ -56,13 +56,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold),
                         ),
-                        if(me.id! == user.id!)
+                        (me.id! == user.id!) ?
                         IconButton(
                             onPressed: () {
                               //log out
                               _socketMethods.logoutUser(id: user.id!);
                               Navigator.popUntil(context, ModalRoute.withName(LoginScreen.routeName));
-                            }, icon: const Icon(Icons.logout))
+                            }, icon: const Icon(Icons.logout)) : const SizedBox(width: 8.0)
                       ],
                     ),
                   ),

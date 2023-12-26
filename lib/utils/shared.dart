@@ -13,6 +13,7 @@ void showSnackBar(BuildContext context, String content) {
 void showWaitingDialog(
     {required BuildContext context,
     required String text,
+      bool showCancel = true,
       required VoidCallback onCancel,
       required VoidCallback onConfirm}) {
   showDialog(
@@ -30,6 +31,7 @@ void showWaitingDialog(
             style: const TextStyle(color: Colors.black, letterSpacing: 1.0),
           ),
           actions: [
+            if(showCancel)
             TextButton(
               onPressed: () {
                 Navigator.of(ctx).pop();

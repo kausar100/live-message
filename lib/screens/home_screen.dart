@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _socketMethods.onNewLoginUserListener(context);
     _socketMethods.onUpdateEngagedSuccessListener(context);
     _socketMethods.onLogoutSuccessListener(context);
+    _socketMethods.onRequestPendingListener(context);
   }
 
   @override
@@ -78,10 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
           bottom: const TabBar(
             tabs: [
               Tab(
-                text: "Request User",
+                text: "Active User",
               ),
               Tab(
-                text: "Active User",
+                text: "Request User",
               ),
             ],
           ),
@@ -90,6 +91,16 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(8.0),
           child: TabBarView(
             children: [
+              //active user list
+              UserList(
+                activeUsers: roomDataProvider.userList,
+                onTapUser: (receiver) {
+                  //sent a request
+                  _socketMethods.requestSent(
+                      context: context, senderId: user.id!, receiver: receiver);
+                },
+              ),
+              //request user list
               UserList(
                 activeUsers: roomDataProvider.requestedUserList,
                 onTapUser: (sender) {
@@ -102,17 +113,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   //change engaged status
                   _socketMethods.updateEngagedStatus(id: user.id!);
 
+                  //save request user
+                  roomDataProvider.saveRequestUser(sender);
+
                   // goto next screen
                   Navigator.pushNamed(context, MessageScreen.routeName,
                       arguments: sender);
-                },
-              ),
-              UserList(
-                activeUsers: roomDataProvider.userList,
-                onTapUser: (receiver) {
-                  //sent a request
-                  _socketMethods.requestSent(
-                      context: context, senderId: user.id!, receiver: receiver);
                 },
               )
             ],

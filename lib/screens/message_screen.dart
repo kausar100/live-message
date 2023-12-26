@@ -33,6 +33,8 @@ class _MessageScreenState extends State<MessageScreen> {
     _socketMethods.onUpdateEngagedSuccessListener(context);
     _socketMethods.onMessageSentSuccessListener(context);
     _socketMethods.onMessageReceiveSuccessListener(context);
+    _socketMethods.onLeaveConversationSuccessListener(context);
+    _socketMethods.onLeaveConversationNotifyListener(context);
   }
 
   @override
@@ -64,12 +66,18 @@ class _MessageScreenState extends State<MessageScreen> {
                         arguments: receiver);
                   },
                   onExitFromRoom: () {
-                    //TODO show warning to leave the chat message will be gone
-                    //TODO clear the chat mesages, update engaged status
-                    //TODO change request user, change active list
-                    //TODO need to leave room
-                    //TODO notify other i leave
-                    Navigator.pop(context);
+                    showWaitingDialog(
+                        context: context,
+                        text:
+                            "You're about to leave the conversation. All message history will be deleted. Are you sure you want to do this!",
+                        onCancel: () {
+                          //do nothing
+                        },
+                        onConfirm: () {
+                          _socketMethods.leaveConversation(
+                              currentUserId: roomDataProvider.currentUser!.id!,
+                              otherPersonId: receiver.id!);
+                        });
                   }),
               Expanded(
                 child: ListView.builder(
@@ -90,9 +98,13 @@ class _MessageScreenState extends State<MessageScreen> {
                     if (_message.text.isEmpty) {
                       showSnackBar(context, "Empty message");
                     } else {
-                      final message = Message(senderID: roomDataProvider.currentUser!.id!, receiver: receiver.id!, text: _message.text.trim());
+                      final message = Message(
+                          senderID: roomDataProvider.currentUser!.id!,
+                          receiver: receiver.id!,
+                          text: _message.text.trim());
                       //send message
-                      _socketMethods.messageSent(chatId: roomDataProvider.chatID!, message: message);
+                      _socketMethods.messageSent(
+                          chatId: roomDataProvider.chatID!, message: message);
                       setState(() {
                         _message.clear();
                       });
