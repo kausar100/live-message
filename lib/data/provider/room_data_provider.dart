@@ -29,10 +29,14 @@ class RoomDataProvider extends ChangeNotifier {
 
   void saveRequestUser(Person info) {
     //remove request user from active list
-    _activeUserList = userList.where((p)=>p.id! != info.id!).toList();
-
+    _activeUserList.removeWhere((p) => p.id! == info.id!);
     //save user
     _requestUser = info;
+    notifyListeners();
+  }
+
+  void clearRequestUser(){
+    _requestUser = null;
     notifyListeners();
   }
 
@@ -60,5 +64,10 @@ class RoomDataProvider extends ChangeNotifier {
     _messageList.add(msg);
     notifyListeners();
 
+  }
+
+  void clearChatHistory(){
+    _messageList.clear();
+    notifyListeners();
   }
 }

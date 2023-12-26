@@ -4,6 +4,7 @@ class IOConstant {
   static const loginEmitter = 'onLoginUser';
   static const logoutEmitter = 'onLogoutUser';
   static const registerEmitter = 'onRegisterUser';
+  static const leaveConversationEmitter = 'onLeaveConversation';
 
   //active user
   static const onFetchActiveUserEmitter = 'onFetchActiveUser';
@@ -12,6 +13,7 @@ class IOConstant {
   //request sent and accept
   static const requestSentEmitter = 'onRequestSent';
   static const requestAcceptEmitter = 'onRequestAccept';
+  static const requestPendingEmitter = 'onRequestPending';
 
   //message sent
   static const messageSentEmitter = 'onSendMessage';
@@ -23,6 +25,8 @@ class IOConstant {
   static const loginSuccessListener = 'onLoginSuccess';
   static const logoutSuccessListener = 'onLogoutSuccess';
   static const onUpdateEngagedStatusSuccessListener = 'onUpdateEngagedStatusSuccessListener';
+  static const onLeaveConversationSuccessListener = 'onLeaveConversationSuccessListener';
+  static const onLeaveConversationNotifyListener = 'onLeaveConversationNotifyListener';
 
   //message sent and receive
   static const messageSentSuccessListener = 'onMessageSentSuccess';
@@ -36,6 +40,7 @@ class IOConstant {
   //request sent and accept
   static const requestSentSuccessListener = 'onRequestSentSuccess';
   static const requestAcceptSuccessListener = 'onRequestAcceptSuccess';
+  static const requestPendingListener = 'onRequestPendingListener';
 
   //error
   static const errorOccurredListener = 'errorOccurred';

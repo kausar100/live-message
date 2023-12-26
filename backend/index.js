@@ -43,6 +43,7 @@ io.on('connection', (socket) => {
 
     //update engaged status
     socket.on("onUpdateEngagedStatus", async (id) => {
+    console.log("call updateengagedstatus");
       try {
          const currentUser = await User.findById(id).select({ password: 0, __v: 0 });
            if (currentUser != null) {
@@ -66,9 +67,26 @@ io.on('connection', (socket) => {
       socket.join(roomId);
       console.log("join to message channel success");
     }else{
-      console.log('Cannot join to messag channel');
+      console.log('Cannot join to message channel');
     }
     
+  });
+
+  //LEAVE CONVERSATION
+  socket.on("onLeaveConversation", async ({senderId, receiverId}) =>{
+    try{
+       const currentUser = await User.findById(senderId).select({ password: 0, __v: 0 });
+       if (currentUser != null) {
+          io.to(senderId).emit("onLeaveConversationSuccessListener", "leave conversation");
+          io.to(receiverId).emit("onLeaveConversationNotifyListener", "leave conversation");
+       } else {
+         socket.emit("errorOccurred", "User not found.");
+       }
+    }
+    catch(e){
+        console.log(e);
+    }
+
   });
 
   //LOGIN
@@ -106,6 +124,7 @@ io.on('connection', (socket) => {
     }
   });
 
+
   //LOGOUT
     socket.on("onLogoutUser", async (id) => {
       try {
@@ -115,11 +134,11 @@ io.on('connection', (socket) => {
           user.isActive = false;
 
             const currentUser = await User.findOneAndUpdate({_id: id}, user, {new: true}).select({ password: 0, __v: 0 });
-
             console.log("onlogoutUserNew "+currentUser);
+
             if (currentUser != null) {
-              socket.leave(id);
               io.emit("onLogoutSuccess", currentUser);
+
             } else {
               socket.emit("errorOccurred", "User not found.");
             }
@@ -143,8 +162,6 @@ io.on('connection', (socket) => {
         const activeUser = await User
         .find({ $and : [ {_id: { $ne : id} },{isActive: true}]})
         .select({ password: 0, __v: 0 });
-//        console.log("onFetchActiveUser "+activeUser);
-
         if (activeUser != null) {
           socket.emit("onActiveUserListener", activeUser);
         }
@@ -242,6 +259,32 @@ io.on('connection', (socket) => {
       }catch(e){
         console.log(e);
       }
+    });
+
+     //REQUEST Pending
+        socket.on("onRequestPending", async ({senderId, receiverId})=>{
+          try{
+            //verify sender exist
+            const sender = await User.findById(senderId).select({password:0,__v:0});
+            const receiver = await User.findById(receiverId).select({password:0,__v:0});
+            if(sender!=null && receiver!=null){
+              //broadcast to sender and receiver
+              io.to(senderId).emit("onRequestPendingListener", receiver);
+            }else{
+              socket.emit("errorOccurred", "User not found");
+            }
+
+          }catch(e){
+            console.log(e);
+          }
+        });
+
+
+
+    //LEAVE SOCKET
+    socket.on("leaveSocket",(id)=>{
+        console.log('leave socket');
+        socket.leave(id);
     });
 
       //Send message to only a particular user
