@@ -18,13 +18,9 @@ const personSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        chatID: {
-            type: String,
-            default: null,
-        },
         isActive: {
             type: Boolean,
-            default: true
+            default: false,
         },
         isEngaged: {
             type: Boolean,

@@ -107,8 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   //goto message screen if user is not engaged
                   _socketMethods.requestAccept(
                       senderId: sender.id!,
-                      receiverId: user.id!,
-                      chatId: roomDataProvider.chatID!);
+                      receiverId: user.id!);
 
                   //change engaged status
                   _socketMethods.updateEngagedStatus(id: user.id!);

@@ -30,7 +30,6 @@ class _MessageScreenState extends State<MessageScreen> {
     _message = TextEditingController();
     _socketMethods.onUserBusyListener(context);
     _socketMethods.onErrorOccuredListener(context);
-    _socketMethods.onUpdateEngagedSuccessListener(context);
     _socketMethods.onMessageSentSuccessListener(context);
     _socketMethods.onMessageReceiveSuccessListener(context);
     _socketMethods.onLeaveConversationSuccessListener(context);
@@ -103,8 +102,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           receiver: receiver.id!,
                           text: _message.text.trim());
                       //send message
-                      _socketMethods.messageSent(
-                          chatId: roomDataProvider.chatID!, message: message);
+                      _socketMethods.messageSent(message: message);
                       setState(() {
                         _message.clear();
                       });

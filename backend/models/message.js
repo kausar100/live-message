@@ -2,18 +2,18 @@ const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema(
     {
-        text:{
+        text: {
             type: String,
         },
-        senderID:{
+        senderID: {
             type: String,
             required: true,
         },
-        createdAt:{
+        createdAt: {
             type: String,
-            default: Date.now()
+            default: Date.now().toLocaleString()
         },
     }
 );
 
-module.exports = messageSchema
+module.exports = mongoose.model("message", messageSchema)

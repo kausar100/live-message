@@ -29,7 +29,7 @@ class SocketMethods {
   }
 
   void fetchActiveUser(String id) {
-    _socketClient.emit(IOConstant.onFetchActiveUserEmitter, {'id': id});
+    _socketClient.emit(IOConstant.onFetchActiveUserEmitter, id);
   }
 
   void loginUser({required String email, required String password}) {
@@ -38,48 +38,43 @@ class SocketMethods {
   }
 
   void logoutUser({required String id}) {
-    _socketClient
-        .emit(IOConstant.logoutEmitter, id);
+    _socketClient.emit(IOConstant.logoutEmitter, id);
   }
 
   void updateEngagedStatus({required String id}) {
     _socketClient.emit(IOConstant.onUpdateEngagedStatusEmitter, id);
   }
 
-  void leaveConversation({required String currentUserId, required String otherPersonId}){
-    _socketClient.emit(IOConstant.leaveConversationEmitter, {"senderId": currentUserId, "receiverId": otherPersonId});
+  void leaveConversation(
+      {required String currentUserId, required String otherPersonId}) {
+    _socketClient.emit(IOConstant.leaveConversationEmitter,
+        {"senderId": currentUserId, "receiverId": otherPersonId});
   }
 
   void requestSent(
       {required BuildContext context,
       required String senderId,
       required Person receiver}) {
-
     _socketClient.emit(IOConstant.requestSentEmitter,
         {"senderId": senderId, "receiverId": receiver.id});
   }
 
-  void requestAccept(
-      {required String senderId,
-      required String receiverId,
-      required String chatId}) {
-
+  void requestAccept({required String senderId, required String receiverId}) {
     _socketClient.emit(IOConstant.requestAcceptEmitter,
-        {"senderId": senderId, "receiverId": receiverId, "chatId": chatId});
-
+        {"senderId": senderId, "receiverId": receiverId});
   }
 
-  void requestHold(
-      {required String senderId,
-        required String receiverId}) {
-
+  void requestHold({required String senderId, required String receiverId}) {
     _socketClient.emit(IOConstant.requestPendingEmitter,
         {"senderId": senderId, "receiverId": receiverId});
-
   }
 
-  void messageSent({required String chatId, required Message message}) {
-    _socketClient.emit(IOConstant.messageSentEmitter, {"chatId":chatId, "senderId": message.senderID, "receiverId": message.receiver, "message": message.text});
+  void messageSent({required Message message}) {
+    _socketClient.emit(IOConstant.messageSentEmitter, {
+      "senderId": message.senderID,
+      "receiverId": message.receiver,
+      "message": message.text
+    });
   }
 
   void _subscribeToRoom(String roomId) {
@@ -103,7 +98,7 @@ class SocketMethods {
       final user = Person.fromJson(data);
       Provider.of<RoomDataProvider>(context, listen: false).updateUser(user);
 
-      //subscribe to own room for messages
+      //subscribe to own id for for messages
       _subscribeToRoom(user.id!);
 
       //fetch active user
@@ -123,7 +118,7 @@ class SocketMethods {
     });
   }
 
-  void onLeaveConversationSuccessListener(BuildContext context){
+  void onLeaveConversationSuccessListener(BuildContext context) {
     _socketClient.on(IOConstant.onLeaveConversationSuccessListener, (msg) {
       print("onLeaveConversationSuccessListener $msg");
 
@@ -131,14 +126,14 @@ class SocketMethods {
     });
   }
 
-  void onLeaveConversationNotifyListener(BuildContext context){
+  void onLeaveConversationNotifyListener(BuildContext context) {
     _socketClient.on(IOConstant.onLeaveConversationNotifyListener, (msg) {
       print("onLeaveConversationNotifyListener $msg");
 
       showWaitingDialog(
           context: context,
           text:
-          "Other person exit from conversation. All message history will be deleted. Your about to leave this conversation.",
+              "Other person exit from conversation. All message history will be deleted. Your about to leave this conversation.",
           showCancel: false,
           onCancel: () {
             //can't do these
@@ -146,12 +141,14 @@ class SocketMethods {
           onConfirm: () {
             _clearAndLeaveChat(context);
           });
-
     });
   }
 
-  void _clearAndLeaveChat(BuildContext context){
+  void _clearAndLeaveChat(BuildContext context) {
     final provider = Provider.of<RoomDataProvider>(context, listen: false);
+
+    //subscribe to room again
+    // _subscribeToRoom(provider.currentUser!.id!);
 
     //update engaged status -> false
     updateEngagedStatus(id: provider.currentUser!.id!);
@@ -166,7 +163,8 @@ class SocketMethods {
 
     //change requested user
     final requestedUserList = provider.requestedUserList;
-    requestedUserList.removeWhere((p) => p.email==provider.requestUser!.email);
+    requestedUserList
+        .removeWhere((p) => p.email == provider.requestUser!.email);
     provider.updateRequestedUser(requestedUserList);
 
     //clear request user
@@ -182,12 +180,7 @@ class SocketMethods {
 
       final provider = Provider.of<RoomDataProvider>(context, listen: false);
 
-      //set chat id
-      provider.setChatId = data['chatID'];
-
-      final senderInfo = data['sender'];
-
-      final sender = Person.fromJson(senderInfo);
+      final sender = Person.fromJson(data);
 
       final requestedList = provider.requestedUserList;
       requestedList.add(sender);
@@ -198,21 +191,20 @@ class SocketMethods {
           context: context,
           text: "${sender.name} is waiting for your confirmation!",
           onCancel: () {
-           //send hold request
-           requestHold(senderId: sender.id!, receiverId: provider.currentUser!.id!);
+            //send hold request
+            requestHold(
+                senderId: sender.id!, receiverId: provider.currentUser!.id!);
           },
           onConfirm: () {
             //accept request
             requestAccept(
-                senderId: sender.id!,
-                receiverId: provider.currentUser!.id!,
-                chatId: provider.chatID!);
+                senderId: sender.id!, receiverId: provider.currentUser!.id!);
 
             //save request user
             provider.saveRequestUser(sender);
 
             //update engaged status
-            updateEngagedStatus(id:  provider.currentUser!.id!);
+            updateEngagedStatus(id: provider.currentUser!.id!);
 
             //go to message screen
             Navigator.pushNamed(context, MessageScreen.routeName,
@@ -225,7 +217,7 @@ class SocketMethods {
     SocketClient.instance.socket?.disconnect();
   }
 
-  void onLogoutSuccessListener(BuildContext context){
+  void onLogoutSuccessListener(BuildContext context) {
     _socketClient.on(IOConstant.logoutSuccessListener, (data) {
       print("onLogoutSuccessListener $data");
 
@@ -234,14 +226,14 @@ class SocketMethods {
       final logoutPerson = Person.fromJson(data);
 
       //myself
-      if(logoutPerson.id! == provider.currentUser!.id!){
+      if (logoutPerson.id! == provider.currentUser!.id!) {
         _socketClient.emit("leaveSocket", provider.currentUser!.id!);
         //goto login screen
         Navigator.popUntil(context, ModalRoute.withName(LoginScreen.routeName));
-      }else{
+      } else {
         //remove from request list
         final requestedPersonList = provider.requestedUserList;
-        requestedPersonList.removeWhere((p) => p.id==logoutPerson.id!);
+        requestedPersonList.removeWhere((p) => p.id == logoutPerson.id!);
 
         //update requested user
         provider.updateRequestedUser(requestedPersonList);
@@ -276,7 +268,9 @@ class SocketMethods {
         //fetch current active user
         final activeUsers = provider.userList;
 
-        final alreadyExist = activeUsers.where((element) => element.email == newUser.email).toList();
+        final alreadyExist = activeUsers
+            .where((element) => element.email == newUser.email)
+            .toList();
 
         if (alreadyExist.isNotEmpty) {
           //do nothing
@@ -290,13 +284,10 @@ class SocketMethods {
     });
   }
 
-  //SENT REQUEST AND UPDATE OWN INFO WITH CHAT ID
+  //SENT REQUEST SUCCESS
   void onRequestSentSuccessListener(BuildContext context) {
     _socketClient.on(IOConstant.requestSentSuccessListener, (chatID) {
       print("onRequestSentSuccessListener $chatID");
-
-      //save data
-      Provider.of<RoomDataProvider>(context, listen: false).setChatId = chatID;
 
       showProgressDialog(context, "Waiting for accepting request...");
     });
@@ -312,11 +303,10 @@ class SocketMethods {
       //update status
       updateEngagedStatus(id: me.id!);
 
-      //dismiss waiting view, show message screen
-      final receiver = Person.fromJson(data);
-
       //save request user
-      Provider.of<RoomDataProvider>(context, listen: false).saveRequestUser(receiver);
+      final receiver = Person.fromJson(data);
+      Provider.of<RoomDataProvider>(context, listen: false)
+          .saveRequestUser(receiver);
 
       //pop dialog and goto message screen
       Navigator.popUntil(context, ModalRoute.withName(HomeScreen.routeName));
@@ -335,12 +325,12 @@ class SocketMethods {
 
       final requestedList = provider.requestedUserList;
       requestedList.add(receiver);
+
       //add new request user
       provider.updateRequestedUser(requestedList);
 
       //pop dialog screen
       Navigator.popUntil(context, ModalRoute.withName(HomeScreen.routeName));
-
     });
   }
 
@@ -350,7 +340,6 @@ class SocketMethods {
 
       final msg = Message.fromJson(data);
       Provider.of<RoomDataProvider>(context, listen: false).addNewMessage(msg);
-
     });
   }
 
