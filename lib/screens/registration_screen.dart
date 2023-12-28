@@ -22,6 +22,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   late TextEditingController _password;
   final SocketMethods _socketMethods = SocketMethods();
 
+  bool showPass = false;
+
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _email.dispose();
     _password.dispose();
     super.dispose();
+  }
+
+  toggleVisibility(){
+    setState(() {
+      showPass=!showPass;
+    });
   }
 
   gotoLoginPage() {
@@ -82,6 +91,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 CustomTextField(
                     controller: _password,
                     label: "Password",
+                    isPasswordField: true,
+                    showPassword: showPass,
+                    onToggle: toggleVisibility,
                     onType: (input) {
                       if (input.isEmpty) {
                         showSnackBar(context, "Password can't be empty!");

@@ -7,11 +7,18 @@ class CustomTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final TextInputType? keyboardType;
   final Function(String input) onType;
+  final VoidCallback? onToggle;
+  final bool isPasswordField;
+  final bool showPassword;
 
   const CustomTextField(
       {super.key,
       required this.controller,
-      this.label, this.hint,
+      this.label,
+      this.hint,
+      this.isPasswordField = false,
+      this.showPassword = false,
+      this.onToggle,
       required this.onType,
       required this.textInputAction,
       required this.keyboardType});
@@ -27,13 +34,25 @@ class CustomTextField extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(4.0)),
       ),
       child: TextField(
-        onChanged: onType,
-        controller: controller,
-        textInputAction: textInputAction,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-            filled: true, fillColor: Colors.white, labelText: label, hintText: hint),
-      ),
+          obscureText: isPasswordField && !showPassword,
+          obscuringCharacter: "*",
+          onChanged: onType,
+          controller: controller,
+          textInputAction: textInputAction,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            labelText: label,
+            hintText: hint,
+            suffixIcon: isPasswordField
+                ? GestureDetector(
+                    onTap: onToggle,
+                    child: Icon(
+                        showPassword ? Icons.visibility_off : Icons.visibility),
+                  )
+                : null,
+          )),
     );
   }
 }
