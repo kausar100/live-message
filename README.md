@@ -17,5 +17,6 @@ samples, guidance on mobile development, and a full API reference.
 
 Authentication Flow
 
-1.Registration page
-![Screenshot_20231231_163514](https://github.com/kausar100/live-message/assets/55630610/b40b5f48-18bc-4b1e-91c2-5e1c35023eeb)
+Registration && Login page
+![registration](https://github.com/kausar100/live-message/assets/55630610/2734e269-6663-4c0f-9cc8-da7bad70aa34)
+![login](https://github.com/kausar100/live-message/assets/55630610/7135a093-c79a-43e3-9e81-067d35e46778)
